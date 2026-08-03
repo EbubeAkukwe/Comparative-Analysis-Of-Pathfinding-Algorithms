@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta
+      name="description"
+      content="Interactive pathfinding algorithm research platform — BFS, Dijkstra, A*, Greedy BFS, D* Lite visualized side-by-side."
+    />
+    <title>PathLab — Pathfinding Research Platform</title>
+
+    <!-- ── Google Fonts ──────────────────────────── -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- ── Styles ────────────────────────────────── -->
+    <link rel="stylesheet" href="style/tokens.css" />
+    <link rel="stylesheet" href="style/layout.css" />
+    <link rel="stylesheet" href="style/components.css" />
+    <link rel="stylesheet" href="style/dashboard.css" />
+    <link rel="stylesheet" href="style/modal.css" />
+    <link rel="stylesheet" href="style/responsive.css" />
+
+    <!-- Inline critical overrides (canvas cursor) -->
+    <style>
+      /* Ensure canvas stack doesn't overflow its container */
+      #canvas-stack {
+        flex-shrink: 0;
+      }
+
+      /* Metric card value highlight pulse */
+      @keyframes metric-pulse {
+        0% {
+          color: var(--accent);
+        }
+        100% {
+          color: var(--bright);
+        }
+      }
+      .metric-card-value.highlight {
+        animation: metric-pulse 0.6s ease forwards;
+      }
+
+      /* Formula block pre */
+      .formula-block pre {
+        margin: 0;
+      }
+
+      /* Complexity colour helpers (used by modal) */
+      .c-good {
+        color: var(--go);
+      }
+      .c-ok {
+        color: var(--warn);
+      }
+      .c-bad {
+        color: var(--danger);
+      }
+      .c-accent {
+        color: var(--accent);
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="app">
+      <!-- ════════════════════════════════════════════
+       HEADER
+       ════════════════════════════════════════════ -->
+      <header id="header">
+        <!-- Mobile menu toggle (hidden on desktop) -->
+        <button
+          id="btn-menu-mobile"
+          class="btn btn-icon btn-ghost"
+          aria-label="Open menu"
+          title="Menu"
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            aria-hidden="true"
+          >
+            <line
+              x1="2"
+              y1="4"
+              x2="14"
+              y2="4"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <line
+              x1="2"
+              y1="8"
+              x2="14"
+              y2="8"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+            <line
+              x1="2"
+              y1="12"
+              x2="14"
+              y2="12"
+              stroke="currentColor"
+              stroke-width="1.5"
+              stroke-linecap="round"
+            />
+          </svg>
+        </button>
+
+        <!-- Logo -->
+        <div
+          style="display: flex; align-items: baseline; gap: 1px; flex-shrink: 0"
+        >
+          <span
+            style="
+              font-family: var(--font-display);
+              font-size: 16px;
+              font-weight: 700;
+              color: var(--bright);
+              letter-spacing: -0.4px;
+            "
+            >Path</span
+          >
+          <span
+            style="
+              font-family: var(--font-display);
+              font-size: 16px;
+              font-weight: 700;
+              color: var(--accent);
+              letter-spacing: -0.4px;
+            "
+            >Lab</span
+          >
+          <span
+            style="
+              font-family: var(--font-mono);
+              font-size: 10px;
+              color: var(--muted);
+              margin-left: 4px;
+              letter-spacing: 0;
+            "
+            >v1.0</span
+          >
+        </div>
+
+        <!-- Run status pill -->
+        <div id="run-pill" class="status-pill">
+          <span class="pill-dot"></span>
+          <span class="pill-label">Ready</span>
+        </div>
+
+        <!-- Live node counter -->
+        <div
+          class="header-pill-group"
+          style="display: flex; align-items: center; gap: 8px"
+        >
+          <div
+            class="status-pill"
+            title="Nodes expanded this run"
+            style="gap: 6px"
+          >
+            <span
+              style="
+                font-size: 9.5px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+              "
+              >nodes</span
+            >
+            <span
+              id="header-node-counter"
+              style="
+                font-family: var(--font-mono);
+                color: var(--accent);
+                font-size: 12px;
+                min-width: 40px;
+                text-align: right;
+              "
+              >0</span
+            >
+          </div>
+          <div
+            class="status-pill"
+            id="header-grid-info-pill"
+            title="Grid dimensions"
+          >
+            <span
+              style="
+                font-size: 9.5px;
+                color: var(--muted);
+                text-transform: uppercase;
+                letter-spacing: 0.8px;
+              "
+              >grid</span
+            >
+            <span
+              id="header-grid-info"
+              style="
+                font-family: var(--font-mono);
+                color: var(--body);
+                font-size: 11px;
+              "
+              >25×40</span
+            >
+          </div>
+        </div>
+
+        <!-- Spacer -->
+        <div class="flex-1"></div>
+
+        <!-- Guide button -->
+        <button
+          id="btn-guide"
+          class="btn btn-ghost"
+          style="font-size: 12px"
+          aria-label="Open algorithm guide"
+        >
+          ? Guide
+        </button>
+      </header>
+
+      <!-- ════════════════════════════════════════════
+       WORKSPACE
+       ════════════════════════════════════════════ -->
+      <div id="workspace">
+        <!-- ── LEFT PANEL ─────────────────────────── -->
+        <aside id="panel-left" aria-label="Controls">
+          <!-- Grid size -->
+          <span class="section-label">Grid</span>
+          <div class="panel-block">
+            <div class="ctrl-row">
+              <span class="ctrl-label">Size</span>
+              <input
+                id="grid-rows"
+                type="number"
+                class="num-input"
+                value="30"
+                min="10"
+                max="50"
+                aria-label="Rows"
+              />
+              <span style="color: var(--muted); font-size: 12px; padding: 0 2px"
+                >×</span
+              >
+              <input
+                id="grid-cols"
+                type="number"
+                class="num-input"
+                value="30"
+                min="10"
+                max="50"
+                aria-label="Columns"
+              />
+            </div>
+            <button
+              id="btn-apply-size"
+              class="btn btn-ghost"
+              style="
+                padding: 4px 8px;
+                font-size: 11px;
+                margin-left: 100px;
+                margin-bottom: 5px;
+              "
+            >
+              Apply
+            </button>
+            <div class="ctrl-row">
+              <span class="ctrl-label">Move</span>
+              <div class="select-wrap" style="flex: 1">
+                <select
+                  id="sel-movement"
+                  class="ctrl-select"
+                  aria-label="Movement direction"
+                >
+                  <option value="4">4-direction</option>
+                  <option value="8">8-direction</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Tools -->
+          <span class="section-label">Tools</span>
+          <div
+            class="panel-block"
+            style="display: flex; flex-direction: column; gap: 2px"
+          >
+            <button
+              class="tool-btn active"
+              data-tool="wall"
+              aria-label="Place wall tool"
+            >
+              <span class="tool-icon">▪</span> Place wall
+            </button>
+            <button class="tool-btn" data-tool="erase" aria-label="Erase tool">
+              <span class="tool-icon">◦</span> Erase
+            </button>
+            <button
+              class="tool-btn"
+              data-tool="start"
+              aria-label="Set start node"
+            >
+              <span class="tool-icon" style="color: var(--go)">▶</span> Set
+              start
+            </button>
+            <button
+              class="tool-btn"
+              data-tool="goal"
+              aria-label="Set goal node"
+            >
+              <span class="tool-icon" style="color: var(--warn)">◎</span> Set
+              goal
+            </button>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Terrain -->
+          <span class="section-label">Terrain</span>
+          <div
+            class="panel-block"
+            style="display: flex; flex-direction: column; gap: 2px"
+          >
+            <button class="tool-btn" id="btn-maze">
+              <span class="tool-icon">⬡</span> Generate maze
+            </button>
+            <div class="ctrl-row">
+              Set Obstacle Density
+              <div class="select-wrap" style="flex: 1">
+                <select
+                  id="sel-scatter-density"
+                  class="ctrl-select"
+                  aria-label="Scatter wall density"
+                >
+                  <option value="0.10">10% walls</option>
+                  <option value="0.15">15% walls</option>
+                  <option value="0.20">20% walls</option>
+                  <option value="0.25">25% walls</option>
+                  <option value="0.30" selected>30% walls</option>
+                </select>
+              </div>
+              <button class="tool-btn" id="btn-scatter" style="flex: 1">
+                <span class="tool-icon">·</span> Scatter
+              </button>
+            </div>
+            <button class="tool-btn" id="btn-clear-walls">
+              <span class="tool-icon" style="color: var(--danger)">✕</span>
+              Clear walls
+            </button>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Algorithms -->
+          <span class="section-label">Algorithms</span>
+          <div
+            id="algo-list"
+            class="panel-block"
+            style="display: flex; flex-direction: column; gap: 2px"
+            role="group"
+            aria-label="Algorithm selection"
+          >
+            <!-- Built by AlgoPanel.js -->
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Heuristic -->
+          <span class="section-label">Heuristic</span>
+          <div class="panel-block">
+            <div class="ctrl-row" style="margin-bottom: 0">
+              <span class="ctrl-label">Function</span>
+              <div class="select-wrap" style="flex: 1">
+                <select
+                  id="sel-heuristic"
+                  class="ctrl-select"
+                  aria-label="Heuristic function"
+                >
+                  <option value="manhattan">Manhattan</option>
+                  <option value="euclidean">Euclidean</option>
+                  <option value="chebyshev">Chebyshev</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Visualization options -->
+          <span class="section-label">Visualization</span>
+          <div
+            class="panel-block"
+            style="display: flex; flex-direction: column; gap: 2px"
+          >
+            <div class="toggle-row">
+              <span class="toggle-label-text">Heatmap overlay</span>
+              <label class="toggle" aria-label="Toggle heatmap">
+                <input type="checkbox" id="toggle-heatmap" checked />
+                <span class="toggle-track"></span>
+                <span class="toggle-knob"></span>
+              </label>
+            </div>
+            <div class="toggle-row">
+              <span class="toggle-label-text">Dynamic obstacles</span>
+              <label class="toggle" aria-label="Toggle dynamic obstacles">
+                <input type="checkbox" id="toggle-dynamic" />
+                <span class="toggle-track"></span>
+                <span class="toggle-knob"></span>
+              </label>
+            </div>
+            <!-- ECF selector — replaces the old freehand dynamic toggle -->
+            <div class="ctrl-row">
+              <span class="ctrl-label">Env change</span>
+              <div class="select-wrap" style="flex: 1">
+                <select id="sel-ecf" class="ctrl-select">
+                  <option value="0">Off</option>
+                  <option value="5">ECF 5%</option>
+                  <option value="10">ECF 10%</option>
+                  <option value="15">ECF 15%</option>
+                  <option value="20">ECF 20%</option>
+                  <option value="30">ECF 30%</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Speed -->
+          <span class="section-label">Speed</span>
+          <div class="panel-block">
+            <div class="range-wrap">
+              <div class="range-header">
+                <span>Animation delay</span>
+                <span class="range-val" id="speed-val">18ms</span>
+              </div>
+              <input
+                type="range"
+                id="speed-slider"
+                class="slider"
+                min="0"
+                max="100"
+                value="85"
+                aria-label="Animation speed"
+              />
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Run actions -->
+          <span class="section-label">Run</span>
+          <div
+            class="panel-block"
+            style="display: flex; flex-direction: column; gap: 5px"
+          >
+            <button
+              id="btn-run"
+              class="btn btn-primary"
+              aria-label="Run selected algorithms"
+            >
+              ▶&nbsp; Run selected
+            </button>
+            <button
+              id="btn-step"
+              class="btn btn-ghost btn-full"
+              style="font-size: 12px"
+              aria-label="Step algorithms once"
+            >
+              Step once
+            </button>
+            <button
+              id="btn-benchmark"
+              class="btn btn-ghost"
+              style="font-size: 12px"
+              aria-label="Perform benchmark without visualization"
+            >
+              ⚡ Quick benchmark
+            </button>
+            <button
+              id="btn-reset-run"
+              class="btn btn-ghost btn-full"
+              style="font-size: 12px"
+              aria-label="Reset visualization"
+            >
+              Reset visualization
+            </button>
+            <button
+              id="btn-clear-all"
+              class="btn btn-ghost btn-full btn-danger"
+              style="font-size: 12px"
+              aria-label="Clear everything"
+            >
+              Clear all
+            </button>
+          </div>
+
+          <div style="height: 12px"></div>
+        </aside>
+
+        <!-- Mobile slide-in backdrop -->
+        <div id="mobile-backdrop" aria-hidden="true"></div>
+
+        <!-- ── CANVAS VIEWPORT ─────────────────────── -->
+        <main id="viewport" aria-label="Algorithm visualization">
+          <!-- Three-layer canvas stack -->
+          <div id="canvas-wrap">
+            <div id="canvas-stack" role="img" aria-label="Pathfinding grid">
+              <canvas id="canvas-static" aria-hidden="true"></canvas>
+              <canvas id="canvas-dynamic" aria-hidden="true"></canvas>
+              <canvas
+                id="canvas-overlay"
+                tabindex="0"
+                aria-label="Interactive grid — click to place walls"
+              ></canvas>
+            </div>
+          </div>
+
+          <!-- Live run log -->
+          <div
+            id="run-log"
+            aria-live="polite"
+            aria-label="Run log"
+            role="log"
+          ></div>
+        </main>
+
+        <!-- ── RIGHT DASHBOARD ────────────────────── -->
+        <aside id="panel-right" aria-label="Research dashboard">
+          <!-- Last-run summary cards -->
+          <span class="section-label">Last run</span>
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-card-label">Runtime</div>
+              <div class="metric-card-value" id="m-runtime">—</div>
+              <div class="metric-card-unit">milliseconds</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card-label">Expanded</div>
+              <div class="metric-card-value" id="m-expanded">—</div>
+              <div class="metric-card-unit">nodes</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card-label">Path cost</div>
+              <div class="metric-card-value" id="m-cost">—</div>
+              <div class="metric-card-unit">total weight</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card-label">Path length</div>
+              <div class="metric-card-value" id="m-length">—</div>
+              <div class="metric-card-unit">steps</div>
+            </div>
+            <!-- Replan metrics — shown only when ECF is active -->
+            <div id="replan-section" style="display: none">
+              <span class="section-label">Replanning (D* Lite)</span>
+              <div class="metric-grid" style="display: block">
+                <div class="metric-card">
+                  <div class="metric-card-label">Replan count</div>
+                  <div class="metric-card-value" id="m-replan-count">—</div>
+                  <div class="metric-card-unit">times replanned</div>
+                </div>
+                <div class="metric-card">
+                  <div class="metric-card-label">Replan nodes</div>
+                  <div class="metric-card-value" id="m-replan-nodes">—</div>
+                  <div class="metric-card-unit">extra nodes expanded</div>
+                </div>
+              </div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-card-label">Memory</div>
+              <div class="metric-card-value" id="m-memory">—</div>
+              <div class="metric-card-unit">bytes</div>
+            </div>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Comparison table -->
+          <span class="section-label">Comparison</span>
+          <div class="table-wrap">
+            <table class="comp-table" aria-label="Algorithm comparison">
+              <thead>
+                <tr>
+                  <th>Algorithm</th>
+                  <th>ms</th>
+                  <th>nodes</th>
+                  <th>cost</th>
+                </tr>
+              </thead>
+              <tbody id="comp-tbody">
+                <tr>
+                  <td colspan="4" class="empty-state">
+                    <span class="empty-icon">⬡</span>
+                    Run algorithms to compare
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="section-divider"></div>
+
+          <!-- Nodes expanded bar chart -->
+          <span class="section-label">Nodes expanded</span>
+          <div id="bar-chart-expanded" class="bar-chart"></div>
+
+          <div class="section-divider"></div>
+
+          <!-- Path cost bar chart -->
+          <span class="section-label">Path cost</span>
+          <div id="bar-chart-cost" class="bar-chart"></div>
+
+          <div class="section-divider"></div>
+
+          <!-- Runtime bar chart -->
+          <span class="section-label">Runtime (ms)</span>
+          <div id="bar-chart-runtime" class="bar-chart"></div>
+
+          <div class="section-divider"></div>
+
+          <!-- Success rate -->
+          <span class="section-label">Success rate</span>
+          <div id="success-rows" class="success-rows">
+            <span class="empty-state">No data yet</span>
+          </div>
+
+          <div style="height: 12px"></div>
+        </aside>
+      </div>
+      <!-- #workspace -->
+
+      <!-- ════════════════════════════════════════════
+       STATUS BAR
+       ════════════════════════════════════════════ -->
+      <footer id="status-bar" aria-label="Status">
+        <div class="status-item">
+          <span class="status-key">cursor</span>
+          <span class="status-val" id="st-cursor">—</span>
+        </div>
+        <div class="status-item">
+          <span class="status-key">state</span>
+          <span class="status-val" id="st-state">open</span>
+        </div>
+        <div class="status-item">
+          <span class="status-key">tool</span>
+          <span class="status-val" id="st-tool">wall</span>
+        </div>
+        <div class="status-item hide-mobile">
+          <span class="status-key">phase</span>
+          <span class="status-val" id="st-phase">idle</span>
+        </div>
+        <div class="status-item">
+          <span class="status-key">Built with ❤️ by</span>
+          <span class="status-val" id="st-phase">
+            <a
+              href="https://www.linkedin.com/in/ebube-akukwe-3690a3336/"
+              target="_blank"
+              style="color: white"
+              >Ebube Akukwe</a
+            >
+          </span>
+        </div>
+        <div class="flex-1"></div>
+        <div class="status-item">
+          <span class="status-key">grid</span>
+          <span class="status-val" id="st-grid">25×40</span>
+        </div>
+      </footer>
+    </div>
+    <!-- #app -->
+
+    <!-- ════════════════════════════════════════════════
+     EDUCATIONAL MODAL
+     ════════════════════════════════════════════════ -->
+    <div
+      id="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Algorithm guide"
+    >
+      <div id="modal">
+        <div class="modal-header">
+          <div>
+            <div class="modal-title">Algorithm Guide</div>
+            <div class="modal-subtitle">
+              Explanations, heuristics, complexity analysis &amp; usage tips
+            </div>
+          </div>
+          <button
+            id="modal-close"
+            class="btn btn-ghost btn-icon"
+            aria-label="Close guide"
+          >
+            ✕
+          </button>
+        </div>
+
+        <div class="modal-tabs" role="tablist">
+          <div
+            class="modal-tab"
+            data-tab="researcher-note"
+            role="tab"
+            tabindex="0"
+          >
+            Researcher's Note
+          </div>
+          <div
+            class="modal-tab active"
+            data-tab="algorithms"
+            role="tab"
+            tabindex="0"
+          >
+            Algorithms
+          </div>
+          <div class="modal-tab" data-tab="heuristics" role="tab" tabindex="0">
+            Heuristics
+          </div>
+          <div class="modal-tab" data-tab="complexity" role="tab" tabindex="0">
+            Complexity
+          </div>
+          <div class="modal-tab" data-tab="usage" role="tab" tabindex="0">
+            Usage guide
+          </div>
+        </div>
+
+        <div class="modal-body" id="modal-body" role="tabpanel">
+          <!-- Rendered by EducationalModal.js -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════
+     BOOTSTRAP
+     ════════════════════════════════════════════════ -->
+    <script type="module" src="main.js"></script>
+  </body>
+</html>

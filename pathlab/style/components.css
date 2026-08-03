@@ -1,0 +1,474 @@
+/* ═══════════════════════════════════════════════════
+   PathLab — Components
+   Buttons, selects, checkboxes, toggles, pills, inputs.
+   ═══════════════════════════════════════════════════ */
+
+/* ── Buttons ────────────────────────────────────── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  padding: 6px 12px;
+  border-radius: var(--r-sm);
+  border: var(--border);
+  background: var(--ink3);
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast), color var(--t-fast);
+  white-space: nowrap;
+  user-select: none;
+  outline: none;
+}
+
+.btn:hover {
+  background: var(--ink4);
+  color: var(--bright);
+  border-color: var(--dim);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.btn:active { opacity: 0.85; }
+
+.btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 12px;
+  width: 100%;
+}
+
+.btn-primary:hover {
+  background: var(--accent2);
+  border-color: var(--accent2);
+  color: #fff;
+}
+
+.btn-primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-ghost {
+  background: transparent;
+  border-color: var(--ink4);
+}
+
+.btn-ghost:hover {
+  background: var(--ink3);
+  border-color: var(--dim);
+}
+
+.btn-danger:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+
+.btn-full { width: 100%; }
+
+/* ── Icon button ────────────────────────────────── */
+.btn-icon {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: var(--r-sm);
+}
+
+/* ── Select ─────────────────────────────────────── */
+.select-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 8px;
+  width: 10px;
+  height: 6px;
+  background: var(--muted);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  pointer-events: none;
+  transition: background var(--t-fast);
+}
+
+.select-wrap:hover::after { background: var(--body); }
+
+select.ctrl-select {
+  width: 100%;
+  padding: 5px 26px 5px 8px;
+  background: var(--ink3);
+  border: var(--border);
+  border-radius: var(--r-sm);
+  color: var(--bright);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  appearance: none;
+  outline: none;
+  transition: border-color var(--t-fast), background var(--t-fast);
+}
+
+select.ctrl-select:hover {
+  background: var(--ink4);
+  border-color: var(--dim);
+}
+
+select.ctrl-select:focus {
+  border-color: var(--accent);
+  background: var(--ink3);
+}
+
+/* ── Control row ────────────────────────────────── */
+.ctrl-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-2);
+}
+
+.ctrl-label {
+  flex-shrink: 0;
+  width: 68px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+/* ── Number input ───────────────────────────────── */
+input[type="number"].num-input {
+  width: 48px;
+  padding: 4px 6px;
+  background: var(--ink3);
+  border: var(--border);
+  border-radius: var(--r-sm);
+  color: var(--bright);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--t-fast);
+}
+
+input[type="number"].num-input:focus {
+  border-color: var(--accent);
+}
+
+input[type="number"].num-input::-webkit-inner-spin-button,
+input[type="number"].num-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+/* ── Toggle switch ──────────────────────────────── */
+.toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 0;
+  margin-bottom: 3px;
+}
+
+.toggle-label-text {
+  font-size: 12px;
+  color: var(--body);
+  user-select: none;
+}
+
+.toggle {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  z-index: 1;
+  margin: 0;
+}
+
+.toggle-track {
+  position: absolute;
+  inset: 0;
+  background: var(--ink4);
+  border-radius: 9px;
+  border: 1px solid var(--dim);
+  transition: background var(--t-mid), border-color var(--t-mid);
+}
+
+.toggle input:checked ~ .toggle-track {
+  background: var(--accent);
+  border-color: var(--accent2);
+}
+
+.toggle-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  background: var(--muted);
+  border-radius: 50%;
+  transition: left var(--t-mid), background var(--t-mid);
+  pointer-events: none;
+}
+
+.toggle input:checked ~ .toggle-knob {
+  left: 16px;
+  background: #fff;
+}
+
+/* ── Algorithm checkbox items ───────────────────── */
+.algo-item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 6px var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background var(--t-fast), border-color var(--t-fast);
+  user-select: none;
+}
+
+.algo-item:hover {
+  background: var(--ink3);
+}
+
+.algo-item.selected {
+  background: var(--ink3);
+  border-color: var(--ink4);
+}
+
+.algo-checkbox {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  border: 1.5px solid var(--dim);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--t-fast), border-color var(--t-fast);
+}
+
+.algo-item.selected .algo-checkbox {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+.algo-check-icon {
+  display: none;
+  width: 8px;
+  height: 8px;
+}
+
+.algo-item.selected .algo-check-icon { display: block; }
+
+.algo-name {
+  flex: 1;
+  font-size: 12px;
+  color: var(--body);
+  transition: color var(--t-fast);
+}
+
+.algo-item.selected .algo-name { color: var(--bright); }
+
+.algo-swatch {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ── Tool buttons ───────────────────────────────── */
+.tool-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 6px var(--sp-2);
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 12px;
+  cursor: pointer;
+  transition: background var(--t-fast), color var(--t-fast), border-color var(--t-fast);
+  text-align: left;
+  user-select: none;
+}
+
+.tool-btn:hover {
+  background: var(--ink3);
+  color: var(--body);
+}
+
+.tool-btn.active {
+  background: var(--ink3);
+  border-color: var(--ink4);
+  color: var(--bright);
+}
+
+.tool-icon {
+  width: 16px;
+  flex-shrink: 0;
+  text-align: center;
+  font-size: 13px;
+}
+
+/* ── Range slider ───────────────────────────────── */
+.range-wrap {
+  padding: 2px 0 4px;
+}
+
+.range-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+  font-size: 11.5px;
+  color: var(--muted);
+}
+
+.range-val {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+input[type="range"].slider {
+  width: 100%;
+  height: 3px;
+  appearance: none;
+  background: var(--ink4);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"].slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--ink2);
+  cursor: pointer;
+  transition: transform var(--t-fast);
+}
+
+input[type="range"].slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+/* ── Status pill (header) ───────────────────────── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: 11px;
+  border: var(--border);
+  background: var(--ink3);
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.status-pill.running {
+  border-color: var(--accent);
+  background: rgba(75,127,255,0.1);
+  color: var(--accent);
+}
+
+.status-pill.done {
+  border-color: var(--go);
+  background: rgba(52,209,136,0.1);
+  color: var(--go);
+}
+
+.status-pill.error {
+  border-color: var(--danger);
+  background: rgba(232,82,74,0.1);
+  color: var(--danger);
+}
+
+.pill-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.pill-dot.pulse {
+  animation: dot-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes dot-pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.25; }
+}
+
+/* ── Status bar items ───────────────────────────── */
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+}
+
+.status-key {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 9.5px;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+.status-val {
+  color: var(--body);
+  font-family: var(--font-mono);
+  font-size: 11px;
+}
+
+/* ── Run log entries ────────────────────────────── */
+.log-line {
+  display: flex;
+  gap: 8px;
+  line-height: 1.65;
+}
+
+.log-ts { color: var(--ink4); }
+.log-msg { color: var(--muted); }
+.log-msg.info    { color: var(--accent); }
+.log-msg.success { color: var(--go); }
+.log-msg.warn    { color: var(--warn); }
+.log-msg.error   { color: var(--danger); }
+
+/* ── Spacer utilities ────────────────────────────── */
+.flex-1 { flex: 1; }
+.hidden { display: none !important; }
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  overflow: hidden;
+  clip: rect(0,0,0,0);
+  white-space: nowrap;
+}

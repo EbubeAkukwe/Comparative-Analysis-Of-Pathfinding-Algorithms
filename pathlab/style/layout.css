@@ -1,0 +1,181 @@
+/* ═══════════════════════════════════════════════════
+   PathLab — Layout
+   App shell, three-column instrument layout.
+   ═══════════════════════════════════════════════════ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  overflow: hidden;
+  background: var(--ink);
+  color: var(--body);
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── App shell ─────────────────────────────────── */
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+/* ── Header ────────────────────────────────────── */
+#header {
+  flex-shrink: 0;
+  height: 48px;
+  background: var(--ink2);
+  border-bottom: var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-4);
+  gap: var(--sp-3);
+  z-index: 20;
+}
+
+/* ── Main workspace ────────────────────────────── */
+#workspace {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Left control panel ────────────────────────── */
+#panel-left {
+  width: 220px;
+  flex-shrink: 0;
+  background: var(--ink2);
+  border-right: var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  z-index: 10;
+}
+
+#panel-left::-webkit-scrollbar { width: 3px; }
+#panel-left::-webkit-scrollbar-track { background: transparent; }
+#panel-left::-webkit-scrollbar-thumb {
+  background: var(--ink4);
+  border-radius: 2px;
+}
+
+/* ── Canvas viewport ───────────────────────────── */
+#viewport {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--ink);
+  position: relative;
+}
+
+#canvas-wrap {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: var(--sp-4);
+}
+
+/* Canvas stack — three layered canvases */
+#canvas-stack {
+  position: relative;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  box-shadow:
+    0 0 0 1px var(--ink4),
+    0 0 0 2px var(--ink2),
+    0 4px 40px rgba(0,0,0,0.6);
+  cursor: crosshair;
+}
+
+#canvas-stack canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: block;
+}
+
+/* z-layers */
+#canvas-static  { z-index: 1; }
+#canvas-dynamic { z-index: 2; }
+#canvas-overlay { z-index: 3; }
+
+/* Run log strip at bottom of viewport */
+#run-log {
+  flex-shrink: 0;
+  height: 72px;
+  background: var(--ink2);
+  border-top: var(--border);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--sp-2) var(--sp-4);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--muted);
+}
+
+#run-log::-webkit-scrollbar { width: 3px; }
+#run-log::-webkit-scrollbar-thumb { background: var(--ink4); border-radius: 2px; }
+
+/* ── Right dashboard panel ─────────────────────── */
+#panel-right {
+  width: 260px;
+  flex-shrink: 0;
+  background: var(--ink2);
+  border-left: var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#panel-right::-webkit-scrollbar { width: 3px; }
+#panel-right::-webkit-scrollbar-thumb { background: var(--ink4); border-radius: 2px; }
+
+/* ── Status bar footer ─────────────────────────── */
+#status-bar {
+  flex-shrink: 0;
+  height: 26px;
+  background: var(--ink);
+  border-top: var(--border);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--sp-4);
+  gap: var(--sp-5);
+}
+
+/* ── Panel section headings ────────────────────── */
+.section-label {
+  display: block;
+  padding: var(--sp-3) var(--sp-4) var(--sp-1);
+  font-family: var(--font-display);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  user-select: none;
+}
+
+.section-divider {
+  height: 1px;
+  background: var(--ink4);
+  margin: var(--sp-2) 0;
+}
+
+/* ── Panel content padding wrapper ─────────────── */
+.panel-block {
+  padding: var(--sp-1) var(--sp-4) var(--sp-3);
+}

@@ -1,0 +1,145 @@
+/* ═══════════════════════════════════════════════════
+   PathLab — Responsive
+   Mobile-first breakpoints, touch optimizations.
+   ═══════════════════════════════════════════════════ */
+
+/* ── Mobile menu button (hidden on desktop) ─────── */
+#btn-menu-mobile {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+}
+
+/* ── Tablet: hide right panel ───────────────────── */
+@media (max-width: 900px) {
+  #panel-right {
+    display: none;
+  }
+
+  /* Wider canvas */
+  #viewport {
+    flex: 1;
+  }
+}
+
+/* ── Mobile: collapse left panel ───────────────── */
+@media (max-width: 640px) {
+  #btn-menu-mobile {
+    display: flex;
+  }
+
+  /* Remove pill clutter in header */
+  .header-pill-group .status-pill:not(:first-child) {
+    display: none;
+  }
+
+  /* Slide-in left panel */
+  #panel-left {
+    position: fixed;
+    top: 48px;
+    bottom: 26px;
+    left: -240px;
+    width: 220px;
+    z-index: 50;
+    transition: left var(--t-mid);
+    box-shadow: none;
+  }
+
+  #panel-left.mobile-open {
+    left: 0;
+    box-shadow: 4px 0 24px rgba(0,0,0,0.6);
+  }
+
+  /* Backdrop when panel open */
+  #mobile-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 40;
+  }
+
+  #mobile-backdrop.visible {
+    display: block;
+  }
+
+  /* Bigger touch targets */
+  .tool-btn {
+    padding: 8px var(--sp-2);
+    font-size: 13px;
+  }
+
+  .algo-item {
+    padding: 8px var(--sp-2);
+  }
+
+  /* Bigger canvas cells for fingers */
+  #canvas-stack {
+    cursor: default;
+  }
+
+  /* Run log taller on mobile */
+  #run-log {
+    height: 56px;
+    font-size: 10px;
+  }
+
+  /* Modal full screen */
+  #modal {
+    max-height: 90vh;
+    max-width: 100%;
+    margin: 0;
+    border-radius: var(--r-md) var(--r-md) 0 0;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+  }
+
+  #modal-backdrop {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  /* Status bar: fewer items */
+  .status-item.hide-mobile {
+    display: none;
+  }
+}
+
+/* ── Very small: 360px ──────────────────────────── */
+@media (max-width: 420px) {
+  #header {
+    padding: 0 var(--sp-3);
+    gap: var(--sp-2);
+  }
+
+  .header-pill-group {
+    display: none;
+  }
+}
+
+/* ── Touch: increase hit targets ───────────────── */
+@media (hover: none) and (pointer: coarse) {
+  .btn { min-height: 36px; }
+  .btn-primary { min-height: 40px; }
+  .tool-btn { min-height: 34px; }
+
+  /* Remove hover-only effects that feel sticky on touch */
+  .btn:hover { background: var(--ink3); }
+  .btn-primary:hover { background: var(--accent); }
+  .tool-btn:hover { background: transparent; }
+  .tool-btn.active:hover { background: var(--ink3); }
+}
+
+/* ── Reduced motion ─────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .bar-fill { transition: none; }
+  .metric-card-value { transition: none; }
+  .pill-dot.pulse { animation: none; opacity: 1; }
+  .toggle-knob { transition: none; }
+  .toggle-track { transition: none; }
+}
